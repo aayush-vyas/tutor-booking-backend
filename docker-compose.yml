@@ -1,0 +1,30 @@
+services:
+  app:
+    build: .
+    container_name: tutor-booking-api
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_DATABASE=tutor_booking
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=secret
+
+  db:
+    image: postgres:15-alpine
+    container_name: tutor-booking-db
+    environment:
+      POSTGRES_DB: tutor_booking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+volumes:
+  postgres_data:
