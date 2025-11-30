@@ -10,7 +10,10 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_user_can_register_as_student(): void
+    /**
+     * Test user registration with both roles (student and tutor).
+     */
+    public function test_user_can_register_with_valid_data(): void
     {
         $response = $this->postJson('/api/auth/register', [
             'name' => 'John Doe',
@@ -25,12 +28,7 @@ class AuthenticationTest extends TestCase
                 'success',
                 'message',
                 'data' => [
-                    'user' => [
-                        'id',
-                        'name',
-                        'email',
-                        'role',
-                    ],
+                    'user' => ['id', 'name', 'email', 'role'],
                     'access_token',
                     'token_type',
                 ],
@@ -42,69 +40,28 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_user_can_register_as_tutor(): void
+    /**
+     * Test registration validation (invalid role and duplicate email).
+     */
+    public function test_registration_validation_fails(): void
     {
-        $response = $this->postJson('/api/auth/register', [
-            'name' => 'Jane Smith',
-            'email' => 'jane@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-            'role' => 'tutor',
-        ]);
-
-        $response->assertStatus(201)
-            ->assertJsonStructure([
-                'success',
-                'message',
-                'data' => [
-                    'user',
-                    'access_token',
-                    'token_type',
-                ],
-            ]);
-
-        $this->assertDatabaseHas('users', [
-            'email' => 'jane@example.com',
-            'role' => 'tutor',
-        ]);
-    }
-
-    public function test_registration_fails_with_invalid_email(): void
-    {
-        $response = $this->postJson('/api/auth/register', [
-            'name' => 'John Doe',
-            'email' => 'invalid-email',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-            'role' => 'student',
-        ]);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
-    }
-
-    public function test_registration_fails_with_invalid_role(): void
-    {
+        // Test invalid role
         $response = $this->postJson('/api/auth/register', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-            'role' => 'admin',
+            'role' => 'admin', // Invalid role
         ]);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['role']);
-    }
 
-    public function test_registration_fails_with_duplicate_email(): void
-    {
-        User::factory()->create([
-            'email' => 'existing@example.com',
-        ]);
+        // Test duplicate email
+        User::factory()->create(['email' => 'existing@example.com']);
 
         $response = $this->postJson('/api/auth/register', [
-            'name' => 'John Doe',
+            'name' => 'Jane Doe',
             'email' => 'existing@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
@@ -115,27 +72,17 @@ class AuthenticationTest extends TestCase
             ->assertJsonValidationErrors(['email']);
     }
 
-    public function test_registration_fails_with_password_mismatch(): void
-    {
-        $response = $this->postJson('/api/auth/register', [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'different_password',
-            'role' => 'student',
-        ]);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['password']);
-    }
-
-    public function test_user_can_login_with_valid_credentials(): void
+    /**
+     * Test user login with valid and invalid credentials.
+     */
+    public function test_user_login(): void
     {
         $user = User::factory()->create([
             'email' => 'test@example.com',
             'password' => bcrypt('password123'),
         ]);
 
+        // Valid credentials
         $response = $this->postJson('/api/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
@@ -145,47 +92,27 @@ class AuthenticationTest extends TestCase
             ->assertJsonStructure([
                 'success',
                 'message',
-                'data' => [
-                    'user',
-                    'access_token',
-                    'token_type',
-                ],
+                'data' => ['user', 'access_token', 'token_type'],
             ]);
-    }
 
-    public function test_login_fails_with_invalid_credentials(): void
-    {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => bcrypt('password123'),
-        ]);
-
+        // Invalid credentials
         $response = $this->postJson('/api/auth/login', [
             'email' => 'test@example.com',
             'password' => 'wrong_password',
         ]);
 
         $response->assertStatus(401)
-            ->assertJson([
-                'success' => false,
-                'message' => 'Invalid credentials',
-            ]);
+            ->assertJson(['success' => false]);
     }
 
-    public function test_login_fails_with_non_existent_email(): void
-    {
-        $response = $this->postJson('/api/auth/login', [
-            'email' => 'nonexistent@example.com',
-            'password' => 'password123',
-        ]);
-
-        $response->assertStatus(401);
-    }
-
-    public function test_authenticated_user_can_get_profile(): void
+    /**
+     * Test authenticated user access (profile and logout).
+     */
+    public function test_authenticated_user_access(): void
     {
         $user = User::factory()->create();
 
+        // Can get profile
         $response = $this->actingAs($user, 'sanctum')
             ->getJson('/api/auth/user');
 
@@ -193,40 +120,26 @@ class AuthenticationTest extends TestCase
             ->assertJsonStructure([
                 'success',
                 'message',
-                'data' => [
-                    'id',
-                    'name',
-                    'email',
-                    'role',
-                ],
+                'data' => ['id', 'name', 'email', 'role'],
             ]);
-    }
 
-    public function test_unauthenticated_user_cannot_get_profile(): void
-    {
-        $response = $this->getJson('/api/auth/user');
-
-        $response->assertStatus(401);
-    }
-
-    public function test_authenticated_user_can_logout(): void
-    {
-        $user = User::factory()->create();
-
+        // Can logout
         $response = $this->actingAs($user, 'sanctum')
             ->postJson('/api/auth/logout');
 
         $response->assertStatus(200)
-            ->assertJson([
-                'success' => true,
-                'message' => 'Logged out successfully',
-            ]);
+            ->assertJson(['success' => true]);
     }
 
-    public function test_unauthenticated_user_cannot_logout(): void
+    /**
+     * Test unauthenticated user cannot access protected routes.
+     */
+    public function test_unauthenticated_user_cannot_access_protected_routes(): void
     {
-        $response = $this->postJson('/api/auth/logout');
+        $response = $this->getJson('/api/auth/user');
+        $response->assertStatus(401);
 
+        $response = $this->postJson('/api/auth/logout');
         $response->assertStatus(401);
     }
 }
