@@ -1,0 +1,899 @@
+{
+	"info": {
+		"_postman_id": "tutor-booking-api-collection",
+		"name": "Tutor Booking API",
+		"description": "Complete API collection for Tutor Booking System with authentication, bookings, and availability management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://tutor-booking.local/api",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "student_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tutor_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "booking_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "availability_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tutor_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data.access_token) {",
+									"        pm.environment.set('student_token', jsonData.data.access_token);",
+									"        pm.environment.set('access_token', jsonData.data.access_token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Student\",\n    \"email\": \"student@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"student\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new student account"
+					},
+					"response": []
+				},
+				{
+					"name": "Register Tutor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data.access_token) {",
+									"        pm.environment.set('tutor_token', jsonData.data.access_token);",
+									"        pm.environment.set('tutor_id', jsonData.data.user.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Jane Tutor\",\n    \"email\": \"tutor@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"tutor\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new tutor account"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('student_token', jsonData.data.access_token);",
+									"    pm.environment.set('access_token', jsonData.data.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"student@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login as student"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Tutor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('tutor_token', jsonData.data.access_token);",
+									"    pm.environment.set('access_token', jsonData.data.access_token);",
+									"    pm.environment.set('tutor_id', jsonData.data.user.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"tutor@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login as tutor"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"user"
+							]
+						},
+						"description": "Get authenticated user details"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logout and invalidate token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Availability (Tutor)",
+			"item": [
+				{
+					"name": "Create Availability Slot",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Use tutor_token if available, otherwise fallback to access_token",
+									"const tutorToken = pm.environment.get('tutor_token');",
+									"if (tutorToken) {",
+									"    pm.environment.set('access_token', tutorToken);",
+									"    console.log('✅ Using tutor_token for authentication');",
+									"} else {",
+									"    console.log('⚠️ tutor_token not found, using access_token');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('availability_id', jsonData.data.id);",
+									"    console.log('✅ Availability created with ID:', jsonData.data.id);",
+									"} else if (pm.response.code === 401) {",
+									"    console.error('❌ Unauthorized: Please login as tutor first');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"start_time\": \"2025-12-02 09:00:00\",\n    \"end_time\": \"2025-12-02 17:00:00\",\n    \"is_available\": true,\n    \"notes\": \"Available for tutoring sessions\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/availabilities",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"availabilities"
+							]
+						},
+						"description": "Create an available time slot (tutor only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Blocked Slot",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set('access_token', pm.environment.get('tutor_token'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"start_time\": \"2025-12-01 12:00:00\",\n    \"end_time\": \"2025-12-01 13:00:00\",\n    \"is_available\": false,\n    \"notes\": \"Lunch break\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/availabilities",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"availabilities"
+							]
+						},
+						"description": "Create a blocked time slot (tutor only)"
+					},
+					"response": []
+				},
+				{
+					"name": "List All Availabilities",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/availabilities?start_date=2025-12-01&end_date=2025-12-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"availabilities"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2025-12-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-12-31"
+								},
+								{
+									"key": "is_available",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						},
+						"description": "List all availability slots (both roles)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Availability",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/availabilities/{{availability_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"availabilities",
+								"{{availability_id}}"
+							]
+						},
+						"description": "Get specific availability slot details"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Availability",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set('access_token', pm.environment.get('tutor_token'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"start_time\": \"2025-12-01 09:00:00\",\n    \"end_time\": \"2025-12-01 18:00:00\",\n    \"is_available\": true,\n    \"notes\": \"Extended availability\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/availabilities/{{availability_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"availabilities",
+								"{{availability_id}}"
+							]
+						},
+						"description": "Update availability slot (tutor only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Availability",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set('access_token', pm.environment.get('tutor_token'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/availabilities/{{availability_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"availabilities",
+								"{{availability_id}}"
+							]
+						},
+						"description": "Delete availability slot (tutor only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tutor Schedule",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/tutors/{{tutor_id}}/schedule?start_date=2025-12-01&end_date=2025-12-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tutors",
+								"{{tutor_id}}",
+								"schedule"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2025-12-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-12-31"
+								}
+							]
+						},
+						"description": "Get full schedule for a specific tutor"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Bookings",
+			"item": [
+				{
+					"name": "Create Booking (Student)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set('access_token', pm.environment.get('student_token'));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('booking_id', jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tutor_id\": {{tutor_id}},\n    \"start_time\": \"2025-12-01 10:00:00\",\n    \"end_time\": \"2025-12-01 11:00:00\",\n    \"notes\": \"Need help with calculus\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/bookings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookings"
+							]
+						},
+						"description": "Create a new booking (student only)"
+					},
+					"response": []
+				},
+				{
+					"name": "List My Bookings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/bookings?status=pending&start_date=2025-12-01&end_date=2025-12-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookings"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "pending",
+									"description": "Filter by status: pending, confirmed, cancelled, completed"
+								},
+								{
+									"key": "start_date",
+									"value": "2025-12-01",
+									"disabled": true
+								},
+								{
+									"key": "end_date",
+									"value": "2025-12-31",
+									"disabled": true
+								}
+							]
+						},
+						"description": "List bookings (filtered by user role)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Booking",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/bookings/{{booking_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookings",
+								"{{booking_id}}"
+							]
+						},
+						"description": "Get specific booking details"
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Booking (Tutor)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set('access_token', pm.environment.get('tutor_token'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/bookings/{{booking_id}}/confirm",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookings",
+								"{{booking_id}}",
+								"confirm"
+							]
+						},
+						"description": "Confirm a pending booking (tutor only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Complete Booking (Tutor)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set('access_token', pm.environment.get('tutor_token'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/bookings/{{booking_id}}/complete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookings",
+								"{{booking_id}}",
+								"complete"
+							]
+						},
+						"description": "Mark a confirmed booking as completed (tutor only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/bookings/{{booking_id}}/cancel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookings",
+								"{{booking_id}}",
+								"cancel"
+							]
+						},
+						"description": "Cancel a booking (both student and tutor)"
+					},
+					"response": []
+				},
+				{
+					"name": "Reschedule Booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"start_time\": \"2025-12-02 14:00:00\",\n    \"end_time\": \"2025-12-02 15:00:00\",\n    \"notes\": \"Rescheduled to afternoon\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/bookings/{{booking_id}}/reschedule",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookings",
+								"{{booking_id}}",
+								"reschedule"
+							]
+						},
+						"description": "Reschedule a booking to new time (both student and tutor)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Available Slots",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/tutors/{{tutor_id}}/available-slots?start_date=2025-12-01&end_date=2025-12-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tutors",
+								"{{tutor_id}}",
+								"available-slots"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2025-12-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-12-31"
+								}
+							]
+						},
+						"description": "Get available time slots for a tutor (excluding booked times)"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
